@@ -1,0 +1,22 @@
+{
+  "name": "huiyi-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "child_process": "^1.0.2",
+    "express": "^4.15.3",
+    "express-async-errors": "^2.1.2",
+    "mongoose": "^4.13.12",
+    "redis": "^2.8.0",
+    "request": "^2.85.0",
+    "socket.io": "^2.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
