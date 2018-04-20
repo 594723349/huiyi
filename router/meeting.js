@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Meeting = require('../models/Meeting');
+const User = require('../models/User');
 require('express-async-errors');
 router.post('/createMeeting' , function(req, res){
     let data = req.body;
+    let createMeetUrl = './huiyiData/huiyiData?meetId=';
+    console.log(data.createUserId)
     if(req){
         new Meeting({
             createUserId : data.createUserId,
@@ -13,11 +16,23 @@ router.post('/createMeeting' , function(req, res){
             address : data.address,
             introduction : data.introduction,
             limitNumber : data.limitNumber
-        }).save(function(err , result){
+        }).save(async function(err , result){
             if(err){
                 res.json({code : 0, msg : '创建失败'});
             }else{
-                res.json({code : 1, msg : '创建成功'});
+                let meetId = result._id;
+                let createMeetingList =await User.findOne({_id : data.createUserId} , {createMeeting : 1});
+                let meetlistIndex = createMeetingList.createMeeting.length;
+                createMeetUrl = createMeetUrl+meetId+"&list="+meetlistIndex;
+                createMeetingList.createMeeting.push(createMeetUrl);
+                createMeetingList.save(function(err, result){
+                    if(err){
+                        res.json({code : 0, msg : '创建失败'});
+                    }else{
+                        console.log(result);
+                        res.json({code : 1, msg : '创建成功' , data: {meetUrl : createMeetUrl}});
+                    }
+                });
             }
         });
     }else{
