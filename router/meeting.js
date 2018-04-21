@@ -6,7 +6,7 @@ require('express-async-errors');
 router.post('/createMeeting' , function(req, res){
     let data = req.body;
     let createMeetUrl = './huiyiData/huiyiData?meetId=';
-    console.log(data.createUserId)
+    console.log(data.createUserId);
     if(req){
         new Meeting({
             createUserId : data.createUserId,
@@ -15,22 +15,35 @@ router.post('/createMeeting' , function(req, res){
             endDate : data.endDate,
             address : data.address,
             introduction : data.introduction,
-            limitNumber : data.limitNumber
+            limitNumber : data.limitNumber,
+            count : {
+                allpyNum : 50,
+                signInNum : 30
+            },
+            setting: {
+                meetingUrl : '1111',
+                invitation : '1111',
+                meetingChange : '1111'
+            }
         }).save(async function(err , result){
             if(err){
                 res.json({code : 0, msg : '创建失败'});
             }else{
+                console.log(result);
                 let meetId = result._id;
                 let createMeetingList =await User.findOne({_id : data.createUserId} , {createMeeting : 1});
-                let meetlistIndex = createMeetingList.createMeeting.length;
-                createMeetUrl = createMeetUrl+meetId+"&list="+meetlistIndex;
+                console.log(createMeetingList)
+                let meetingListIndex = createMeetingList.createMeeting.length;
+                createMeetUrl = createMeetUrl+meetId+"&list="+meetingListIndex;
+                result.setting.meetingUrl = createMeetUrl;
+                result.save();
                 createMeetingList.createMeeting.push(createMeetUrl);
                 createMeetingList.save(function(err, result){
                     if(err){
                         res.json({code : 0, msg : '创建失败'});
                     }else{
                         console.log(result);
-                        res.json({code : 1, msg : '创建成功' , data: {meetUrl : createMeetUrl}});
+                        res.json({code : 1, msg : '创建成功' , data: {meetingUrl : createMeetUrl}});
                     }
                 });
             }
@@ -46,11 +59,21 @@ router.post('/myJoinMeeting' , async function(req, res){
 });
 router.post('/myCreateMeeting' ,async function(req, res){
     console.log(req.body);
-    let myCreateMeeting = await Meeting.findOne({createUserId: req.body.userId},{title : 1, startDate: 1, address : 1});
+    let myCreateMeeting = await Meeting.find({createUserId: req.body.createUserId},{_id : 1,title : 1, startDate: 1, address : 1});
     if(myCreateMeeting){
-        res.json({code : 1, data : {title : myCreateMeeting.title , start : myCreateMeeting.startDate, address : myCreateMeeting.address}});
+        res.json({code : 1, data : myCreateMeeting});
     }else{
         res.json({code :0, msg: '你尚未创建会议'});
     }
+});
+router.post('/meetingDetail' , async function(req, res){
+    console.log(req.body);
+    let meetingDetail =await Meeting.findOne({_id : req.body.meetingId} , {setting:1, count:1})
+    if(meetingDetail){
+        res.json({code : 1, data :meetingDetail})
+    }else{
+        res.json({code : 0, msg : '失败'})
+    }
+
 });
 module.exports = router;
