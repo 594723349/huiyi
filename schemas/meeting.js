@@ -6,6 +6,15 @@ const meeting = new mongoose.Schema({
     endDate : String,
     address : String,
     introduction : String,
-    limitNumber: Number
+    limitNumber: Number,
+    count : {
+        allpyNum : Number,
+        signInNum : Number
+    },
+    setting : {
+        meetingUrl : String,
+        invitation : String,
+        meetingChange : String
+    }
 });
 module.exports = meeting;
